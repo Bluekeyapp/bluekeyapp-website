@@ -35,6 +35,7 @@ const state = {
   },
   tourFilter: "all",
   periodFilter: "30",
+  clearHistoryConfirmOpen: false,
   lastUpdated: null,
   message: "",
   error: ""
@@ -126,7 +127,22 @@ async function handleClick(event) {
   }
 
   if (action === "clear-activity-history") {
-    await handleClearActivityHistory(event.target.closest("[data-action]"));
+    if (!state.tours.length || deletionPending) return;
+    state.clearHistoryConfirmOpen = true;
+    state.message = "";
+    state.error = "";
+    renderDashboard();
+    return;
+  }
+
+  if (action === "cancel-clear-activity-history") {
+    state.clearHistoryConfirmOpen = false;
+    renderDashboard();
+    return;
+  }
+
+  if (action === "confirm-clear-activity-history") {
+    await handleClearActivityHistory();
     return;
   }
 
@@ -215,18 +231,13 @@ async function handleClick(event) {
   }
 }
 
-async function handleClearActivityHistory(button) {
+async function handleClearActivityHistory() {
   if (deletionPending || !state.tours.length) return;
-  const total = state.tours.length;
-  const confirmed = window.confirm(
-    `Supprimer toutes les activités du journal ?\n\n${total} tournée${total > 1 ? "s" : ""}, ainsi que tous les scans et signalements associés, seront définitivement supprimés. Toutes les sessions agent seront fermées et leur historique local sera effacé. Cette action est irréversible.`
-  );
-  if (!confirmed) return;
-
   deletionPending = true;
-  button.disabled = true;
+  state.clearHistoryConfirmOpen = false;
   state.message = "";
   state.error = "";
+  renderDashboard();
   try {
     const result = await clearManagerActivityHistory();
     if (!result.ok) {
@@ -235,7 +246,10 @@ async function handleClearActivityHistory(button) {
       return;
     }
     await refreshDashboard(false);
-    if (!state.error) {
+    if (!state.error && state.tours.length) {
+      state.error = `Suppression incomplète : ${state.tours.length} activité${state.tours.length > 1 ? "s restent" : " reste"}. Actualisez puis réessayez.`;
+      renderDashboard();
+    } else if (!state.error) {
       state.message = `${result.deletedCount} activité${result.deletedCount > 1 ? "s" : ""} supprimée${result.deletedCount > 1 ? "s" : ""}.`;
       renderDashboard();
     }
@@ -532,14 +546,33 @@ function renderDashboard(capturePanels = true) {
           <p class="eyebrow">Journal d'activité</p>
           <h2>Tournées récentes</h2>
         </div>
-        <button class="icon-text-button delete-button journal-clear-button" type="button" data-action="clear-activity-history" ${state.tours.length ? "" : "disabled"}>Effacer le journal</button>
+        <button class="icon-text-button delete-button journal-clear-button" type="button" data-action="clear-activity-history" ${state.tours.length && !deletionPending ? "" : "disabled"}>${deletionPending ? "Suppression..." : "Effacer le journal"}</button>
       </div>
       ${renderTourFilters()}
       <div class="manager-list">
         ${visibleTours.length ? visibleTours.map(renderTourCard).join("") : renderEmpty(state.tourFilter !== "all")}
       </div>
     </section>
+    ${renderClearHistoryConfirmation()}
     <p class="manager-session-note">Connecté en tant que ${escapeHtml(state.session?.user?.email || "Responsable")}</p>
+  `;
+}
+
+function renderClearHistoryConfirmation() {
+  if (!state.clearHistoryConfirmOpen) return "";
+  const total = state.tours.length;
+  return `
+    <div class="manager-confirm-overlay" role="presentation">
+      <section class="manager-confirm-dialog" role="dialog" aria-modal="true" aria-labelledby="clearHistoryTitle" aria-describedby="clearHistoryDescription">
+        <p class="eyebrow">Action définitive</p>
+        <h2 id="clearHistoryTitle">Effacer tout le journal ?</h2>
+        <p id="clearHistoryDescription">${total} tournée${total > 1 ? "s" : ""}, tous les scans et tous les signalements seront supprimés. Les sessions agent seront fermées et leur historique local sera effacé.</p>
+        <div class="manager-confirm-actions">
+          <button class="secondary-button" type="button" data-action="cancel-clear-activity-history">Annuler</button>
+          <button class="primary-button danger-button" type="button" data-action="confirm-clear-activity-history">Effacer définitivement</button>
+        </div>
+      </section>
+    </div>
   `;
 }
 

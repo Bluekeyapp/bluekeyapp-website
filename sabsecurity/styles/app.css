@@ -353,6 +353,51 @@ button {
   flex: 0 0 auto;
 }
 
+.manager-confirm-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgba(5, 8, 13, 0.78);
+}
+
+.manager-confirm-dialog {
+  width: min(100%, 460px);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 22px;
+  background: var(--surface);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.42);
+}
+
+.manager-confirm-dialog h2 {
+  margin: 5px 0 10px;
+}
+
+.manager-confirm-dialog > p:not(.eyebrow) {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.55;
+}
+
+.manager-confirm-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.danger-button {
+  background: #d94242;
+  color: #fff;
+}
+
+.danger-button:hover {
+  background: #c73535;
+}
+
 .site-list,
 .checkpoint-list {
   display: grid;
@@ -1507,6 +1552,10 @@ select:focus {
 
   .journal-clear-button {
     width: 100%;
+  }
+
+  .manager-confirm-actions {
+    grid-template-columns: 1fr;
   }
 
   .tour-filter-bar {

@@ -1,4 +1,4 @@
-const CACHE_NAME = "security-patrol-sabsecurity-v4";
+const CACHE_NAME = "security-patrol-sabsecurity-v5";
 const APP_SHELL = [
   "./",
   "./agent/",
