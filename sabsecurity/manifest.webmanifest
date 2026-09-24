@@ -1,0 +1,24 @@
+{
+  "name": "SAB Sécurité",
+  "short_name": "SAB",
+  "description": "Contrôle mobile de tournées QR pour SAB Sécurité.",
+  "start_url": "./agent/",
+  "display": "standalone",
+  "background_color": "#101318",
+  "theme_color": "#101318",
+  "icons": [
+    {
+      "src": "./assets/sab-securite-logo-clean.png",
+      "sizes": "1024x1024",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./assets/sab-securite-logo-clean.png",
+      "sizes": "1024x1024",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "scope": "./"
+}
