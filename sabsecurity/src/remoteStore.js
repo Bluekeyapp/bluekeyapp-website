@@ -6,7 +6,7 @@ export async function authenticateAgent({ badge, pin }) {
     return { ok: false, error: new Error("Supabase non configuré") };
   }
 
-  const { data, error } = await supabase.rpc("authenticate_agent", {
+  const { data, error } = await supabase.rpc("authenticate_agent_session", {
     p_badge: String(badge || "").trim(),
     p_pin: String(pin || "")
   });
@@ -28,7 +28,8 @@ export async function authenticateAgent({ badge, pin }) {
       badge: agent.badge,
       siteId: agent.site_id,
       siteName: agent.site_name
-    }
+    },
+    sessionEpoch: agent.session_epoch
   };
 }
 
@@ -40,14 +41,10 @@ export async function fetchAgentRoutes(credentials) {
 
   const params = {
     p_badge: credentials.badge,
-    p_pin: credentials.pin
+    p_pin: credentials.pin,
+    p_session_epoch: credentials.sessionEpoch
   };
-  let { data, error } = await supabase.rpc("get_agent_routes", params);
-  if (isMissingRpc(error)) {
-    const fallback = await supabase.rpc("get_agent_route", params);
-    data = fallback.data ? [fallback.data] : [];
-    error = fallback.error;
-  }
+  const { data, error } = await supabase.rpc("get_agent_routes_session", params);
   const routes = Array.isArray(data)
     ? data.filter((route) => route.points?.some((point) => point.kind === "start"))
     : [];
@@ -63,16 +60,29 @@ export async function saveTourRemote(tour, credentials) {
   const params = {
     p_badge: credentials.badge,
     p_pin: credentials.pin,
+    p_session_epoch: credentials.sessionEpoch,
     p_tour: tour
   };
-  let { error } = await supabase.rpc("sync_agent_tour_for_site", params);
-  if (isMissingRpc(error)) {
-    ({ error } = await supabase.rpc("sync_agent_tour", params));
-  }
+  const { error } = await supabase.rpc("sync_agent_tour_session", params);
 
   return error
     ? { ok: false, error, authRejected: error.code === "28000" }
     : { ok: true };
+}
+
+export async function checkAgentSession(credentials) {
+  const supabase = await getSupabaseClient();
+  if (!supabase || !credentials?.badge || !credentials?.pin || !credentials?.sessionEpoch) {
+    return { ok: false, valid: false };
+  }
+  const { data, error } = await supabase.rpc("check_agent_session", {
+    p_badge: credentials.badge,
+    p_pin: credentials.pin,
+    p_session_epoch: credentials.sessionEpoch
+  });
+  return error
+    ? { ok: false, valid: false, error }
+    : { ok: true, valid: data === true };
 }
 
 export async function getManagerSession() {
@@ -330,8 +340,4 @@ function selectTours(supabase) {
       )
     `)
     .order("started_at", { ascending: false });
-}
-
-function isMissingRpc(error) {
-  return error?.code === "42883" || error?.code === "PGRST202";
 }

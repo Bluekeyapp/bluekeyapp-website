@@ -217,15 +217,9 @@ async function handleClick(event) {
 
 async function handleClearActivityHistory(button) {
   if (deletionPending || !state.tours.length) return;
-  const activeCount = state.tours.filter((tour) => tour.status === "active").length;
-  if (activeCount) {
-    state.error = "Terminez ou annulez les tournées en cours avant d'effacer le journal.";
-    renderDashboard();
-    return;
-  }
   const total = state.tours.length;
   const confirmed = window.confirm(
-    `Supprimer toutes les activités du journal ?\n\n${total} tournée${total > 1 ? "s" : ""}, ainsi que tous les scans et signalements associés, seront définitivement supprimés. Cette action est irréversible.`
+    `Supprimer toutes les activités du journal ?\n\n${total} tournée${total > 1 ? "s" : ""}, ainsi que tous les scans et signalements associés, seront définitivement supprimés. Toutes les sessions agent seront fermées et leur historique local sera effacé. Cette action est irréversible.`
   );
   if (!confirmed) return;
 

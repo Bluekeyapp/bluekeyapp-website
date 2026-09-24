@@ -15,6 +15,7 @@ import {
 import {
   addTourToHistory,
   clearAgent,
+  clearAgentWorkspace,
   loadActiveTour,
   loadAgent,
   loadAgentCredentials,
@@ -24,13 +25,14 @@ import {
   saveAgent,
   saveAgentCredentials
 } from "./storage.js";
-import { authenticateAgent, fetchAgentRoutes, saveTourRemote } from "./remoteStore.js";
+import { authenticateAgent, checkAgentSession, fetchAgentRoutes, saveTourRemote } from "./remoteStore.js";
 
 const savedAgent = loadAgent();
 const savedCredentials = loadAgentCredentials();
 const hasValidSession = savedAgent
   && savedCredentials?.badge === savedAgent.badge
-  && savedCredentials?.pin;
+  && savedCredentials?.pin
+  && savedCredentials?.sessionEpoch;
 
 const state = {
   agent: hasValidSession ? savedAgent : null,
@@ -85,6 +87,8 @@ const dom = {
 };
 
 let toastTimer = null;
+let sessionMonitorId = null;
+let sessionCheckInFlight = false;
 
 const QR_SCAN_OPTIONS = {
   delayBetweenScanAttempts: 120,
@@ -103,16 +107,16 @@ registerServiceWorker();
 
 async function initialize() {
   if (state.agent) {
-    const loaded = await loadRoutes(state.credentials);
-    if (!loaded) {
-      clearAgent();
-      saveActiveTour(null);
-      state.agent = null;
-      state.credentials = null;
-      state.activeTour = null;
+    const sessionResult = await checkAgentSession(state.credentials);
+    if (sessionResult.ok && !sessionResult.valid) {
+      resetAgentState();
+    } else {
+      const loaded = await loadRoutes(state.credentials);
+      if (!loaded) resetAgentState();
     }
   }
   render();
+  startAgentSessionMonitoring();
 }
 
 async function loadRoutes(credentials) {
@@ -160,7 +164,13 @@ function bindEvents() {
     state.pendingStart = false;
     state.commentTour = null;
     state.lastOutcomeTour = null;
+    startAgentSessionMonitoring();
     render();
+  });
+
+  window.addEventListener("online", validateAgentSession);
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "visible") validateAgentSession();
   });
 
   dom.mainView.addEventListener("submit", async (event) => {
@@ -204,7 +214,7 @@ function bindEvents() {
     }
 
     state.agent = result.agent;
-    state.credentials = { badge: result.agent.badge, pin };
+    state.credentials = { badge: result.agent.badge, pin, sessionEpoch: result.sessionEpoch };
     const routeLoaded = await loadRoutes(state.credentials);
     if (!routeLoaded) {
       state.agent = null;
@@ -215,6 +225,7 @@ function bindEvents() {
     }
     saveAgent(result.agent);
     saveAgentCredentials(state.credentials);
+    startAgentSessionMonitoring();
     render();
   });
 
@@ -337,6 +348,50 @@ function bindEvents() {
     }
   });
   dom.incidentForm.addEventListener("submit", submitIncident);
+}
+
+function startAgentSessionMonitoring() {
+  window.clearInterval(sessionMonitorId);
+  sessionMonitorId = null;
+  if (!state.agent || !state.credentials) return;
+  sessionMonitorId = window.setInterval(validateAgentSession, 15000);
+}
+
+async function validateAgentSession() {
+  if (sessionCheckInFlight || !state.agent || !state.credentials || !navigator.onLine) return;
+  sessionCheckInFlight = true;
+  try {
+    const result = await checkAgentSession(state.credentials);
+    if (result.ok && !result.valid) {
+      forceAgentLogout("Session fermée par le responsable");
+    }
+  } finally {
+    sessionCheckInFlight = false;
+  }
+}
+
+function resetAgentState() {
+  window.clearInterval(sessionMonitorId);
+  sessionMonitorId = null;
+  clearAgentWorkspace();
+  state.agent = null;
+  state.credentials = null;
+  state.activeTour = null;
+  state.history = [];
+  state.routes = [];
+  state.route = null;
+  state.pendingStart = false;
+  state.commentTour = null;
+  state.lastOutcomeTour = null;
+}
+
+function forceAgentLogout(message) {
+  if (state.scannerOpen) closeScanner();
+  if (state.cancelOpen) closeCancelSheet();
+  if (state.incidentOpen) closeIncidentSheet();
+  resetAgentState();
+  render();
+  showToast(message);
 }
 
 function render() {
@@ -971,13 +1026,7 @@ function persistTour(tour) {
     }
 
     if (result.authRejected) {
-      clearAgent();
-      saveActiveTour(null);
-      state.agent = null;
-      state.credentials = null;
-      state.activeTour = null;
-      showToast("Accès agent désactivé");
-      render();
+      forceAgentLogout("Session agent expirée");
       return;
     }
 

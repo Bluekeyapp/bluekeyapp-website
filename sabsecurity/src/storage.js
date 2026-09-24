@@ -18,6 +18,12 @@ export function clearAgent() {
   sessionStorage.removeItem(STORAGE_KEYS.agentCredentials);
 }
 
+export function clearAgentWorkspace() {
+  clearAgent();
+  localStorage.removeItem(STORAGE_KEYS.activeTour);
+  localStorage.removeItem(STORAGE_KEYS.tourHistory);
+}
+
 export function loadAgentCredentials() {
   return readSessionJson(STORAGE_KEYS.agentCredentials, null);
 }
