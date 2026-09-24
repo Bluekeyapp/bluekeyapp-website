@@ -29,6 +29,12 @@ const state = {
   expandedAgentIds: new Set(),
   expandedSiteIds: new Set(),
   reportRanges: new Map(),
+  categoryReport: {
+    siteId: "",
+    category: "incident:any",
+    from: "",
+    to: ""
+  },
   tourFilter: "all",
   periodFilter: "30",
   lastUpdated: null,
@@ -57,6 +63,8 @@ function handleChange(event) {
     from: reportForm.querySelector('[name="from"]').value,
     to: reportForm.querySelector('[name="to"]').value
   });
+  const categoryForm = event.target.closest?.("[data-category-report-form]");
+  if (categoryForm) captureCategoryReport(categoryForm);
 }
 
 async function initialize() {
@@ -183,6 +191,11 @@ async function handleClick(event) {
 
   if (action === "export-site-report") {
     await exportSiteReport(event.target.closest("[data-site-id]"));
+    return;
+  }
+
+  if (action === "export-category-report") {
+    await exportCategoryReport(event.target.closest("[data-action]"));
     return;
   }
 
@@ -460,6 +473,7 @@ function renderDashboard(capturePanels = true) {
     ${state.error ? `<p class="form-message error">${escapeHtml(state.error)}</p>` : ""}
     ${renderManagerMetrics()}
     ${renderSitesPanel()}
+    ${renderCategoryReportsPanel()}
     <section class="manager-admin-panel">
       <div class="section-heading">
         <div>
@@ -562,6 +576,50 @@ function renderSitesPanel() {
   `;
 }
 
+function renderCategoryReportsPanel() {
+  const range = getCategoryReportState();
+  const categories = [
+    ["incident:any", "Tous les incidents"],
+    ["incident:Incident", "Incidents"],
+    ["incident:Urgence", "Urgences"],
+    ["incident:Matériel", "Matériel"],
+    ["incident:Accès impossible", "Accès impossible"],
+    ["status:completed", "Tournées terminées"],
+    ["status:cancelled", "Tournées annulées"],
+    ["status:active", "Tournées en cours"],
+    ["all", "Toutes les tournées"]
+  ];
+
+  return `
+    <section class="manager-admin-panel category-reports-panel">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">Rapports clients</p>
+          <h2>Exporter par catégorie</h2>
+        </div>
+      </div>
+      <p class="section-copy">Créez un PDF ciblé pour transmettre uniquement les événements utiles au client.</p>
+      ${state.sites.length ? `
+        <div class="category-report-controls" data-category-report-form>
+          <label>Site
+            <select name="siteId">
+              ${state.sites.map((site) => `<option value="${escapeHtml(site.id)}" ${site.id === range.siteId ? "selected" : ""}>${escapeHtml(site.name)}</option>`).join("")}
+            </select>
+          </label>
+          <label>Catégorie
+            <select name="category">
+              ${categories.map(([value, label]) => `<option value="${escapeHtml(value)}" ${value === range.category ? "selected" : ""}>${label}</option>`).join("")}
+            </select>
+          </label>
+          <label>Du<input type="date" name="from" value="${range.from}" required></label>
+          <label>Au<input type="date" name="to" value="${range.to}" required></label>
+          <button class="primary-button category-report-button" type="button" data-action="export-category-report">Télécharger le PDF</button>
+        </div>
+      ` : `<div class="empty-inline">Ajoutez d'abord un site pour créer un rapport.</div>`}
+    </section>
+  `;
+}
+
 function renderSiteRow(site) {
   const points = state.checkpoints.filter((point) => point.site_id === site.id);
   return `
@@ -595,6 +653,8 @@ function captureExpandedPanels() {
   for (const form of managerView.querySelectorAll?.("[data-report-form]") || []) {
     state.reportRanges.set(form.dataset.siteId, { from: form.querySelector('[name="from"]').value, to: form.querySelector('[name="to"]').value });
   }
+  const categoryForm = managerView.querySelector?.("[data-category-report-form]");
+  if (categoryForm) captureCategoryReport(categoryForm);
   const openSites = managerView.querySelectorAll?.("details.site-row[open][data-site-panel-id]") || [];
   const openAgents = managerView.querySelectorAll?.("[data-agent-panel-id][aria-expanded='true']") || [];
   for (const panel of openSites) state.expandedSiteIds.add(panel.dataset.sitePanelId);
@@ -933,6 +993,25 @@ function getReportRange(siteId, now = new Date()) {
   };
 }
 
+function getCategoryReportState(now = new Date()) {
+  const siteExists = state.sites.some((site) => site.id === state.categoryReport.siteId);
+  return {
+    siteId: siteExists ? state.categoryReport.siteId : (state.sites[0]?.id || ""),
+    category: state.categoryReport.category || "incident:any",
+    from: state.categoryReport.from || formatFileDate(getPeriodCutoff("30", now)),
+    to: state.categoryReport.to || formatFileDate(now)
+  };
+}
+
+function captureCategoryReport(form) {
+  state.categoryReport = {
+    siteId: form.querySelector('[name="siteId"]')?.value || "",
+    category: form.querySelector('[name="category"]')?.value || "incident:any",
+    from: form.querySelector('[name="from"]')?.value || "",
+    to: form.querySelector('[name="to"]')?.value || ""
+  };
+}
+
 function parseReportDate(value) {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return null;
   const [year, month, day] = value.split("-").map(Number);
@@ -984,7 +1063,90 @@ async function exportSiteReport(button) {
   }
 }
 
-function buildSiteReportPdf(doc, site, tours, generatedAt, from, to) {
+async function exportCategoryReport(button) {
+  const form = button?.closest("[data-category-report-form]");
+  if (!form) return;
+  captureCategoryReport(form);
+  const { siteId, category } = state.categoryReport;
+  const site = state.sites.find((item) => item.id === siteId);
+  const from = parseReportDate(state.categoryReport.from);
+  const to = parseReportDate(state.categoryReport.to);
+  const categoryLabel = form.querySelector('[name="category"]')?.selectedOptions?.[0]?.textContent?.trim()
+    || getReportCategoryLabel(category);
+
+  if (!from || !to || from > to) {
+    state.error = "Choisissez une période valide : la date de début doit précéder la date de fin.";
+    renderDashboard();
+    return;
+  }
+  const PdfDocument = window.jspdf?.jsPDF;
+  if (!site || typeof PdfDocument !== "function") {
+    state.error = "Le générateur PDF est indisponible. Actualisez la page puis réessayez.";
+    renderDashboard();
+    return;
+  }
+
+  const originalLabel = button.textContent;
+  button.disabled = true;
+  button.textContent = "Création...";
+  state.error = "";
+
+  try {
+    const generatedAt = new Date();
+    const endExclusive = new Date(to);
+    endExclusive.setDate(endExclusive.getDate() + 1);
+    const result = await fetchSiteReportTours(site.id, from.toISOString(), endExclusive.toISOString());
+    if (!result.ok) throw result.error || new Error("Impossible de charger les tournées");
+    const tours = filterToursForCategory(normalizeRemoteTours(result.tours), category)
+      .sort((a, b) => new Date(b.startedAt) - new Date(a.startedAt));
+    const doc = new PdfDocument({ unit: "mm", format: "a4", compress: true });
+    buildSiteReportPdf(doc, site, tours, generatedAt, from, to, { categoryLabel });
+    const categorySlug = slugify(categoryLabel) || "categorie";
+    doc.save(`${slugify(site.name) || "site"}-${categorySlug}-${formatFileDate(from)}_${formatFileDate(to)}.pdf`);
+    state.message = `Rapport « ${categoryLabel} » créé pour ${site.name}.`;
+  } catch (error) {
+    console.error("Category PDF report generation failed:", error);
+    state.error = "Le rapport PDF n'a pas pu être créé. Réessayez.";
+  } finally {
+    button.disabled = false;
+    button.textContent = originalLabel;
+    renderDashboard();
+  }
+}
+
+function filterToursForCategory(tours, category) {
+  if (category === "all") return [...tours];
+  if (category.startsWith("status:")) {
+    const status = category.slice("status:".length);
+    return tours.filter((tour) => tour.status === status);
+  }
+  if (category.startsWith("incident:")) {
+    const incidentCategory = category.slice("incident:".length);
+    return tours
+      .map((tour) => ({
+        ...tour,
+        incidents: (tour.incidents || []).filter((incident) => incidentCategory === "any" || incident.category === incidentCategory)
+      }))
+      .filter((tour) => tour.incidents.length > 0);
+  }
+  return [];
+}
+
+function getReportCategoryLabel(category) {
+  return {
+    "incident:any": "Tous les incidents",
+    "incident:Incident": "Incidents",
+    "incident:Urgence": "Urgences",
+    "incident:Matériel": "Matériel",
+    "incident:Accès impossible": "Accès impossible",
+    "status:completed": "Tournées terminées",
+    "status:cancelled": "Tournées annulées",
+    "status:active": "Tournées en cours",
+    all: "Toutes les tournées"
+  }[category] || "Rapport ciblé";
+}
+
+function buildSiteReportPdf(doc, site, tours, generatedAt, from, to, options = {}) {
   const margin = 16;
   const pageWidth = doc.internal.pageSize.getWidth();
   const pageHeight = doc.internal.pageSize.getHeight();
@@ -1004,7 +1166,7 @@ function buildSiteReportPdf(doc, site, tours, generatedAt, from, to) {
     setText(11, [255, 255, 255], "bold");
     doc.text("SAB SÉCURITÉ", margin, 10);
     setText(8, [190, 202, 219]);
-    doc.text("Rapport de tournées", margin, 16);
+    doc.text(options.categoryLabel ? `Rapport : ${options.categoryLabel}` : "Rapport de tournées", margin, 16);
     y = 34;
   };
 
@@ -1050,6 +1212,10 @@ function buildSiteReportPdf(doc, site, tours, generatedAt, from, to) {
   setText(9, [94, 105, 120]);
   doc.text(`Période : du ${formatPdfDate(from)} au ${formatPdfDate(to)}`, margin, y);
   y += 5;
+  if (options.categoryLabel) {
+    doc.text(`Catégorie : ${options.categoryLabel}`, margin, y);
+    y += 5;
+  }
   doc.text(`Généré le ${formatPdfDateTime(generatedAt)}`, margin, y);
   y += 9;
 
