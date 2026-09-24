@@ -1358,6 +1358,9 @@ function getManagerError(error) {
   if (error?.code === "PGRST202" || message.includes("could not find the function")) {
     return "La suppression doit être activée dans Supabase. Exécutez la migration clear-activity-history.sql.";
   }
+  if (error?.code === "21000") {
+    return "La fonction de suppression Supabase doit être mise à jour. Exécutez la migration clear-activity-history.sql.";
+  }
   if (message.includes("active patrol")) return "Terminez ou annulez les tournées en cours avant de supprimer cet élément.";
   if (message.includes("site has assigned agents")) return "Supprimez les agents affectés à ce site avant de le supprimer.";
   if (message.includes("starting post")) return "Le QR de départ est nécessaire. Il est supprimé uniquement avec son site.";

@@ -236,9 +236,10 @@ export async function deleteManagedItem(kind, id) {
 export async function clearManagerActivityHistory() {
   const supabase = await getSupabaseClient();
   if (!supabase) return { ok: false, error: new Error("Supabase non configuré") };
-  const { data, error } = await supabase.rpc("manager_clear_activity_history");
+  const { data, error } = await supabase.rpc("manager_purge_activity_history_v2");
   if (error) return { ok: false, error };
-  return { ok: true, deletedCount: Number(data || 0) };
+  if (!data?.ok) return { ok: false, error: new Error("Invalid purge response") };
+  return { ok: true, deletedCount: Number(data.deleted_count || 0) };
 }
 
 export async function subscribeManagerUpdates(onUpdate) {
