@@ -223,6 +223,14 @@ export async function deleteManagedItem(kind, id) {
     : { ok: false, error: new Error("Item not found") };
 }
 
+export async function clearManagerActivityHistory() {
+  const supabase = await getSupabaseClient();
+  if (!supabase) return { ok: false, error: new Error("Supabase non configuré") };
+  const { data, error } = await supabase.rpc("manager_clear_activity_history");
+  if (error) return { ok: false, error };
+  return { ok: true, deletedCount: Number(data || 0) };
+}
+
 export async function subscribeManagerUpdates(onUpdate) {
   const supabase = await getSupabaseClient();
   if (!supabase) return () => {};

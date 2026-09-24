@@ -3,6 +3,7 @@ import {
   createManagedCheckpoint,
   createManagedStartingPost,
   createManagedSite,
+  clearManagerActivityHistory,
   deleteManagedItem,
   fetchManagerAgents,
   fetchManagerSites,
@@ -124,6 +125,11 @@ async function handleClick(event) {
     return;
   }
 
+  if (action === "clear-activity-history") {
+    await handleClearActivityHistory(event.target.closest("[data-action]"));
+    return;
+  }
+
   if (action === "manager-signout") {
     stopLiveUpdates?.();
     stopLiveUpdates = null;
@@ -206,6 +212,44 @@ async function handleClick(event) {
     state.message = button.dataset.active === "true" ? "Agent désactivé" : "Agent activé";
     state.error = "";
     await refreshDashboard();
+  }
+}
+
+async function handleClearActivityHistory(button) {
+  if (deletionPending || !state.tours.length) return;
+  const activeCount = state.tours.filter((tour) => tour.status === "active").length;
+  if (activeCount) {
+    state.error = "Terminez ou annulez les tournées en cours avant d'effacer le journal.";
+    renderDashboard();
+    return;
+  }
+  const total = state.tours.length;
+  const confirmed = window.confirm(
+    `Supprimer toutes les activités du journal ?\n\n${total} tournée${total > 1 ? "s" : ""}, ainsi que tous les scans et signalements associés, seront définitivement supprimés. Cette action est irréversible.`
+  );
+  if (!confirmed) return;
+
+  deletionPending = true;
+  button.disabled = true;
+  state.message = "";
+  state.error = "";
+  try {
+    const result = await clearManagerActivityHistory();
+    if (!result.ok) {
+      state.error = getManagerError(result.error);
+      renderDashboard();
+      return;
+    }
+    await refreshDashboard(false);
+    if (!state.error) {
+      state.message = `${result.deletedCount} activité${result.deletedCount > 1 ? "s" : ""} supprimée${result.deletedCount > 1 ? "s" : ""}.`;
+      renderDashboard();
+    }
+  } catch {
+    state.error = "Le journal n'a pas pu être effacé. Actualisez avant de réessayer.";
+    renderDashboard();
+  } finally {
+    deletionPending = false;
   }
 }
 
@@ -494,6 +538,7 @@ function renderDashboard(capturePanels = true) {
           <p class="eyebrow">Journal d'activité</p>
           <h2>Tournées récentes</h2>
         </div>
+        <button class="icon-text-button delete-button journal-clear-button" type="button" data-action="clear-activity-history" ${state.tours.length ? "" : "disabled"}>Effacer le journal</button>
       </div>
       ${renderTourFilters()}
       <div class="manager-list">
@@ -1221,7 +1266,7 @@ function buildSiteReportPdf(doc, site, tours, generatedAt, from, to, options = {
   for (let page = 1; page <= pageCount; page += 1) {
     doc.setPage(page);
     setText(7, [116, 126, 140]);
-    doc.text(`SAB Sécurité | ${site.name}`, margin, pageHeight - 8);
+    doc.text(`SAB Security | ${site.name}`, margin, pageHeight - 8);
     doc.text(`Page ${page} / ${pageCount}`, pageWidth - margin, pageHeight - 8, { align: "right" });
   }
 }

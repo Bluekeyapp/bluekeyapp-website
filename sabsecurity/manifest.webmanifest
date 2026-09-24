@@ -1,7 +1,7 @@
 {
-  "name": "SAB Sécurité",
+  "name": "SAB Security",
   "short_name": "SAB",
-  "description": "Contrôle mobile de tournées QR pour SAB Sécurité.",
+  "description": "Contrôle mobile de tournées QR pour SAB Security.",
   "start_url": "./agent/",
   "display": "standalone",
   "background_color": "#101318",
