@@ -95,6 +95,7 @@ button {
 .manager-toolbar {
   min-height: 64px;
   padding-bottom: 4px;
+  align-items: flex-end;
 }
 
 .manager-toolbar-actions {
@@ -116,7 +117,8 @@ button {
   display: flex;
   align-items: center;
   gap: 12px;
-  margin-top: 7px;
+  min-height: 38px;
+  margin-top: 4px;
 }
 
 .manager-status-row .manager-sync {
