@@ -580,14 +580,7 @@ function renderCategoryReportsPanel() {
   const range = getCategoryReportState();
   const categories = [
     ["incident:any", "Tous les incidents"],
-    ["incident:Incident", "Incidents"],
-    ["incident:Urgence", "Urgences"],
-    ["incident:Matériel", "Matériel"],
-    ["incident:Accès impossible", "Accès impossible"],
-    ["status:completed", "Tournées terminées"],
-    ["status:cancelled", "Tournées annulées"],
-    ["status:active", "Tournées en cours"],
-    ["all", "Toutes les tournées"]
+    ["incident:Incident", "Signalements"]
   ];
 
   return `
@@ -1115,11 +1108,6 @@ async function exportCategoryReport(button) {
 }
 
 function filterToursForCategory(tours, category) {
-  if (category === "all") return [...tours];
-  if (category.startsWith("status:")) {
-    const status = category.slice("status:".length);
-    return tours.filter((tour) => tour.status === status);
-  }
   if (category.startsWith("incident:")) {
     const incidentCategory = category.slice("incident:".length);
     return tours
@@ -1135,14 +1123,7 @@ function filterToursForCategory(tours, category) {
 function getReportCategoryLabel(category) {
   return {
     "incident:any": "Tous les incidents",
-    "incident:Incident": "Incidents",
-    "incident:Urgence": "Urgences",
-    "incident:Matériel": "Matériel",
-    "incident:Accès impossible": "Accès impossible",
-    "status:completed": "Tournées terminées",
-    "status:cancelled": "Tournées annulées",
-    "status:active": "Tournées en cours",
-    all: "Toutes les tournées"
+    "incident:Incident": "Signalements"
   }[category] || "Rapport ciblé";
 }
 
