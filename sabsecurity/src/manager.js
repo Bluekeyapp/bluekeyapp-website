@@ -242,22 +242,19 @@ async function handleClearActivityHistory() {
     const result = await clearManagerActivityHistory();
     if (!result.ok) {
       state.error = getManagerError(result.error);
-      renderDashboard();
       return;
     }
     await refreshDashboard(false);
     if (!state.error && state.tours.length) {
       state.error = `Suppression incomplète : ${state.tours.length} activité${state.tours.length > 1 ? "s restent" : " reste"}. Actualisez puis réessayez.`;
-      renderDashboard();
     } else if (!state.error) {
       state.message = `${result.deletedCount} activité${result.deletedCount > 1 ? "s" : ""} supprimée${result.deletedCount > 1 ? "s" : ""}.`;
-      renderDashboard();
     }
-  } catch {
-    state.error = "Le journal n'a pas pu être effacé. Actualisez avant de réessayer.";
-    renderDashboard();
+  } catch (error) {
+    state.error = getManagerError(error);
   } finally {
     deletionPending = false;
+    renderDashboard();
   }
 }
 
@@ -1359,7 +1356,7 @@ function slugify(value) {
 function getManagerError(error) {
   const message = String(error?.message || "").toLowerCase();
   if (error?.code === "PGRST202" || message.includes("could not find the function")) {
-    return "La suppression doit être activée dans Supabase. Exécutez la migration manager-deletions.sql.";
+    return "La suppression doit être activée dans Supabase. Exécutez la migration clear-activity-history.sql.";
   }
   if (message.includes("active patrol")) return "Terminez ou annulez les tournées en cours avant de supprimer cet élément.";
   if (message.includes("site has assigned agents")) return "Supprimez les agents affectés à ce site avant de le supprimer.";
@@ -1371,7 +1368,8 @@ function getManagerError(error) {
   if (message.includes("not authorized") || message.includes("permission")) {
     return "Action non autorisée.";
   }
-  return "Une erreur est survenue. Réessayez.";
+  const code = String(error?.code || "").trim();
+  return code ? `Une erreur est survenue (${code}). Réessayez.` : "Une erreur est survenue. Réessayez.";
 }
 
 function formatTime(isoValue) {
