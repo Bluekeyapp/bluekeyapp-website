@@ -33,7 +33,7 @@
     <a class="skip-link" href="#main" data-en="Skip to content"
       >Aller au contenu</a
     >
-    <header class="site-header">
+    <header class="site-header" id="top">
       <div class="header-inner container">
         <a
           class="brand"
@@ -52,7 +52,7 @@
           aria-expanded="false"
           aria-controls="navigation"
         >
-          <span data-en="Menu">Menu</span
+          <span data-menu-text data-en="Menu">Menu</span
           ><span class="menu-icon" aria-hidden="true">☰</span>
         </button>
         <nav
@@ -88,7 +88,7 @@
             </button>
           </div>
           <a class="button button-small" href="#contact"
-            ><span data-en="Let’s talk">Parlons de votre projet</span
+            ><span data-en="Start a conversation">Parler de mon projet</span
             ><span aria-hidden="true">↗</span></a
           >
         </nav>
@@ -99,42 +99,37 @@
         <div class="hero-copy">
           <p class="eyebrow">
             <span class="blue-dot" aria-hidden="true"></span
-            ><span data-en="Your digital development partner"
-              >Votre partenaire en développement numérique</span
+            ><span data-en="Custom apps & software"
+              >Applications & logiciels sur mesure</span
             >
           </p>
           <h1 id="hero-title">
-            <span data-en="Your ideas.">Vos idées.</span><br /><span
-              class="blue-text"
-              data-en="Our code."
-              >Notre code.</span
-            ><br /><span data-en="New possibilities."
-              >De nouvelles possibilités.</span
-            >
+            <span data-en="Applications">Des applications</span><br />
+            <span data-en="built for">pensées pour</span><br />
+            <span class="blue-text" data-en="your business.">votre entreprise.</span>
           </h1>
           <p
             class="intro"
-            data-en="Web apps, mobile experiences and custom software. We turn your business needs into digital tools that make a difference, every day."
+            data-en="A customer portal, a mobile app or an internal tool: we design and build software that makes your everyday work easier."
           >
-            Applications web, expériences mobiles et logiciels sur mesure. Nous
-            transformons vos besoins en outils numériques qui font la
-            différence, au quotidien.
+            Un portail client, une application mobile ou un outil interne :
+            nous concevons les solutions qui facilitent votre travail au quotidien.
           </p>
           <div class="hero-actions">
             <a class="button" href="#contact"
-              ><span data-en="Tell us about your project"
-                >Parlons de votre projet</span
+              ><span data-en="Start a conversation"
+                >Parler de mon projet</span
               ><span aria-hidden="true">↗</span></a
             ><a class="text-link" href="#services"
-              ><span data-en="Explore our services">Découvrir nos services</span
+              ><span data-en="Find my solution">Trouver ma solution</span
               ><span aria-hidden="true">↓</span></a
             >
           </div>
           <p
             class="hero-note"
-            data-en="From the first conversation to your product’s launch."
+            data-en="No detailed brief yet? An idea is enough to get started."
           >
-            Du premier échange à la mise en ligne de votre produit.
+            Pas de cahier des charges ? Une idée suffit pour commencer.
           </p>
         </div>
         <div
@@ -280,19 +275,18 @@
               01 — Ce que nous créons
             </p>
             <h2 id="services-title">
-              <span data-en="The right tools.">Les bons outils.</span
-              ><br /><span class="muted-heading" data-en="For your ambitions."
-                >Pour vos ambitions.</span
+              <span data-en="What would you like">Que souhaitez-vous</span
+              ><br /><span class="muted-heading" data-en="to make easier?"
+                >simplifier ?</span
               >
             </h2>
           </div>
           <p
             class="section-intro"
-            data-en="Launch a service, simplify your daily work or connect your teams. We build around what your business really needs."
+            data-en="Choose the need closest to yours. We’ll use it as the starting point for your project. Not sure yet? We can work it out together."
           >
-            Lancer un service, simplifier votre quotidien ou connecter vos
-            équipes. Nous construisons autour des besoins réels de votre
-            entreprise.
+            Choisissez le besoin qui vous ressemble. Il servira de point de
+            départ à votre projet. Vous hésitez ? Nous le préciserons ensemble.
           </p>
         </div>
         <div class="cards">
@@ -310,22 +304,22 @@
                 /></svg
               ><span class="card-number">01</span>
             </div>
-            <h3 data-en="Application development">
-              Développement d’applications
+            <h3 data-en="Build an application">
+              Créer une application
             </h3>
             <p
-              data-en="Web and mobile solutions that make your services accessible through clear interfaces and practical features."
+              data-en="Let your customers book, order or access your services through a web or mobile app designed for them."
             >
-              Des solutions web et mobiles qui rendent vos services accessibles
-              grâce à des interfaces claires et des fonctionnalités utiles.
+              Permettez à vos clients de réserver, commander ou accéder à vos
+              services dans une application web ou mobile pensée pour eux.
             </p>
             <div class="tags">
               <span data-en="Customer portals">Portails clients</span
               ><span data-en="Mobile apps">Apps mobiles</span>
             </div>
-            <a class="card-link" href="#contact"
-              ><span data-en="Bring your idea to life"
-                >Donner vie à votre idée</span
+            <a class="card-link" href="#contact" data-project="application"
+              ><span data-en="Discuss my app"
+                >Parler de mon application</span
               ><span aria-hidden="true">↗</span></a
             >
           </article>
@@ -343,21 +337,20 @@
                 <path d="M18 25h10m-5-5v10" /></svg
               ><span class="card-number">02</span>
             </div>
-            <h3 data-en="Business software">Logiciels métier</h3>
+            <h3 data-en="Simplify daily operations">Simplifier la gestion</h3>
             <p
-              data-en="Management tools, dashboards and internal workspaces designed around the way your organisation works."
+              data-en="Bring your tasks, data and reporting together in one tool built around the way your team works."
             >
-              Des outils de gestion, des tableaux de bord et des espaces de
-              travail internes conçus autour du fonctionnement de votre
-              organisation.
+              Réunissez vos tâches, vos données et votre suivi d’activité dans
+              un outil adapté au fonctionnement de votre équipe.
             </p>
             <div class="tags">
               <span data-en="Dashboards">Tableaux de bord</span
               ><span data-en="Internal tools">Outils internes</span>
             </div>
-            <a class="card-link" href="#contact"
-              ><span data-en="Simplify your daily work"
-                >Simplifier votre quotidien</span
+            <a class="card-link" href="#contact" data-project="software"
+              ><span data-en="Discuss my business tool"
+                >Parler de mon outil métier</span
               ><span aria-hidden="true">↗</span></a
             >
           </article>
@@ -377,8 +370,8 @@
                 /></svg
               ><span class="card-number">03</span>
             </div>
-            <h3 data-en="Integration & automation">
-              Intégration & automatisation
+            <h3 data-en="Connect your tools">
+              Connecter vos outils
             </h3>
             <p
               data-en="Connect your tools, organise the flow of information and reduce repetitive tasks with solutions tailored to your processes."
@@ -391,8 +384,8 @@
               <span data-en="Connected tools">Outils connectés</span
               ><span data-en="Workflows">Flux de travail</span>
             </div>
-            <a class="card-link" href="#contact"
-              ><span data-en="Connect your tools">Connecter vos outils</span
+            <a class="card-link" href="#contact" data-project="automation"
+              ><span data-en="Discuss my integrations">Parler de mes intégrations</span
               ><span aria-hidden="true">↗</span></a
             >
           </article>
@@ -567,40 +560,54 @@
         aria-labelledby="contact-title"
       >
         <div class="contact-panel">
-          <div class="contact-decoration" aria-hidden="true">↗</div>
           <div class="contact-copy">
             <p
               class="eyebrow"
-              data-en="Great products start with a conversation"
+              data-en="Let’s start with your idea"
             >
-              Les bons produits commencent par un échange
+              Partons de votre idée
             </p>
             <h2 id="contact-title">
-              <span data-en="What’s your">Quelle est votre</span><br /><span
-                data-en="next idea?"
-                >prochaine idée ?</span
-              >
+              <span data-en="Tell us about">Parlons de</span><br />
+              <span data-en="your project.">votre projet.</span>
             </h2>
             <p
-              data-en="Tell us what you want to build, who it’s for and what you’d like to improve. Let’s work out the next steps together."
+              data-en="What would you like to make easier, and for whom? A few words are enough. We’ll discuss your priorities and the next steps together."
             >
-              Dites-nous ce que vous souhaitez créer, à qui votre solution
-              s’adresse et ce que vous voulez améliorer. Imaginons la suite
-              ensemble.
+              Que souhaitez-vous simplifier, et pour qui ? Quelques mots
+              suffisent. Nous échangerons sur vos priorités et les prochaines étapes.
             </p>
-            <a class="button button-white" href="mailto:contact@bluekeyapp.com"
-              ><span data-en="Let’s talk about it">Parlons-en</span
-              ><span aria-hidden="true">↗</span></a
-            ><a class="email-link" href="mailto:contact@bluekeyapp.com"
-              >contact@bluekeyapp.com</a
-            >
-            <p
-              class="contact-note"
-              data-en="Opens your email app. Prefer another service? Copy the address above."
-            >
-              Ouvre votre messagerie. Vous préférez un autre service ? Copiez
-              l’adresse ci-dessus.
-            </p>
+            <div class="contact-direct">
+              <span data-en="Prefer to write directly?">Vous préférez écrire directement ?</span>
+              <a class="email-link" href="mailto:contact@bluekeyapp.com">contact@bluekeyapp.com</a>
+              <button class="copy-email" id="copy-email" type="button" hidden data-en="Copy email address">Copier l’adresse</button>
+              <span id="email-copy-status" role="status" aria-live="polite" aria-atomic="true"></span>
+            </div>
+          </div>
+          <div class="project-composer" id="project-composer" hidden>
+            <h3 data-en="A simple starting point">Un premier pas, tout simplement</h3>
+            <label for="project-type" data-en="1. What do you need?">1. Quel est votre besoin ?</label>
+            <select id="project-type" name="project-type">
+              <option value="unsure" data-en="Help me choose">À définir ensemble</option>
+              <option value="application" data-en="Web / mobile app">Application web / mobile</option>
+              <option value="software" data-en="Business software">Logiciel métier</option>
+              <option value="automation" data-en="Automation">Automatisation</option>
+            </select>
+            <label for="project-message"><span data-en="2. Your idea in a few words">2. Votre idée en quelques mots</span> <span class="optional-label" data-en="(optional)">(facultatif)</span></label>
+            <p class="field-hint" id="project-hint" data-en="What should the tool help you do? Who will use it?">Que doit permettre votre outil ? Qui l’utilisera ?</p>
+            <textarea id="project-message" name="project-message" rows="4" maxlength="1200" aria-describedby="project-hint"></textarea>
+            <div class="composer-actions">
+              <a class="button" id="draft-email" href="mailto:contact@bluekeyapp.com"><span data-en="Open my email app">Ouvrir mon e-mail</span><span aria-hidden="true">↗</span></a>
+              <button class="button button-secondary" id="copy-message" type="button" data-en="Copy message">Copier le message</button>
+            </div>
+            <p class="composer-note" data-en="Opens a draft in your email app. You review and send it yourself. You can also copy the message into your preferred email service.">Ouvre un brouillon dans votre messagerie. Vous le relisez et l’envoyez vous-même. Vous pouvez aussi copier le message dans votre messagerie habituelle.</p>
+          </div>
+          <div class="contact-feedback">
+            <p id="contact-status" role="status" aria-live="polite" aria-atomic="true"></p>
+            <div id="copy-fallback" hidden>
+              <label for="copy-fallback-text" data-en="Copy this text into your email app:">Copiez ce texte dans votre messagerie :</label>
+              <textarea id="copy-fallback-text" readonly rows="5"></textarea>
+            </div>
           </div>
         </div>
       </section>
@@ -622,7 +629,7 @@
         <p data-en="Your ideas. Our code. New possibilities.">
           Vos idées. Notre code. De nouvelles possibilités.
         </p>
-        <a class="back-top" href="#main"
+        <a class="back-top" href="#top"
           ><span data-en="Back to top">Retour en haut</span
           ><span aria-hidden="true">↑</span></a
         >
