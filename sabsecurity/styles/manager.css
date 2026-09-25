@@ -19,6 +19,7 @@
 .sidebar-caption { margin: 3px 0 0; font-size: 12px; color: var(--muted); }
 .manager-navigation { display: grid; gap: 7px; }
 .manager-navigation a { padding: 11px 14px; border-radius: 6px; color: #aeb7b9; font-weight: 550; text-decoration: none; }
+.manager-navigation .nav-label-short { display: none; }
 .manager-navigation a:hover, .manager-navigation a.active { background: #23382f; color: #a4edc7; }
 .sidebar-account { margin-top: 60px; padding: 18px 12px; border-top: 1px solid var(--line); }
 .sidebar-account strong { font-size: 14px; }
@@ -101,10 +102,17 @@
   .client-report-controls, .manager-view[data-category="overview"] .client-report-controls { grid-template-columns: minmax(0, 1fr); }
   .client-report-controls > * { grid-column: 1; }
   .manager-body .client-report-button { white-space: normal; height: auto; min-height: 44px; }
-  .manager-sidebar { padding-top: calc(16px + env(safe-area-inset-top)); }
-  .manager-navigation { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; overflow: visible; }
-  .manager-navigation a { display: flex; align-items: center; min-height: 44px; padding: 10px 12px; white-space: normal; }
-  .manager-navigation a:first-child { grid-column: 1 / -1; }
+  .manager-sidebar { padding: calc(12px + env(safe-area-inset-top)) 16px 8px; }
+  .manager-sidebar .brand-lockup { align-items: center; margin-bottom: 10px; }
+  .manager-sidebar .brand-mark { width: 32px; height: 36px; }
+  .manager-sidebar strong { font-size: 14px; }
+  .manager-sidebar .sidebar-caption { display: none; }
+  .manager-navigation { display: flex; gap: 4px; overflow-x: auto; white-space: nowrap; scrollbar-width: none; }
+  .manager-navigation::-webkit-scrollbar { display: none; }
+  .manager-navigation a { flex: 0 0 auto; justify-content: center; min-height: 44px; padding: 10px 7px; border-bottom: 2px solid transparent; border-radius: 0; }
+  .manager-navigation a.active { background: transparent; border-bottom-color: #a4e7c0; }
+  .manager-navigation .nav-label-full { display: none; }
+  .manager-navigation .nav-label-short { display: inline; }
   .manager-view { padding: 20px 16px calc(28px + env(safe-area-inset-bottom)); }
   .manager-toolbar { margin-bottom: 20px; }
   .manager-toolbar-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
