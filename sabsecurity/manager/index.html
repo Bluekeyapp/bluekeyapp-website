@@ -8,18 +8,27 @@
   <title>SAB Security - Tableau patron</title>
   <link rel="icon" href="./assets/sab-securite-logo-clean.png" type="image/png">
   <link rel="stylesheet" href="./styles/app.css?v=55">
+  <link rel="stylesheet" href="./styles/manager.css?v=1">
 </head>
 <body class="manager-body">
   <div class="manager-shell">
-    <header class="top-shell">
+    <aside class="manager-sidebar">
       <div class="brand-lockup">
         <img class="brand-mark" src="./assets/sab-securite-logo-clean.png" width="42" height="42" alt="">
         <div>
-          <p class="eyebrow">Centre de contrôle</p>
-          <h1>SAB Security</h1>
+          <strong>SAB Security</strong>
+          <p class="sidebar-caption">Espace manager</p>
         </div>
       </div>
-    </header>
+      <nav class="manager-navigation" aria-label="Navigation principale" hidden>
+        <a href="#overview">Vue d'ensemble</a>
+        <a href="#sites">Sites et QR codes</a>
+        <a href="#agents">Agents</a>
+        <a href="#reports">Rapports clients</a>
+        <a href="#journal">Journal d'activité</a>
+      </nav>
+      <div class="sidebar-account" hidden><strong>Administration</strong><p class="sidebar-caption">Compte manager</p></div>
+    </aside>
 
     <main class="manager-view" id="managerView"></main>
   </div>
@@ -42,6 +51,6 @@
 
   <script src="./vendor/qrcode.js"></script>
   <script src="./vendor/jspdf.umd.min.js"></script>
-  <script type="module" src="./src/manager.js?v=57"></script>
+  <script type="module" src="./src/manager.js?v=58"></script>
 </body>
 </html>

@@ -19,12 +19,18 @@ import {
 } from "./remoteStore.js";
 
 const managerView = document.getElementById("managerView");
+// Published routes use a base URL for assets; navigation must stay on the manager page.
+for (const link of document.querySelectorAll(".manager-navigation a")) {
+  link.href = `${location.pathname}${location.search}${link.getAttribute("href")}`;
+}
+const categories = { overview: "Vue d'ensemble", sites: "Sites et QR codes", agents: "Agents", reports: "Rapports clients", journal: "Journal d'activité" };
 const state = {
   session: null,
   agents: [],
   tours: [],
   sites: [],
   checkpoints: [],
+  reportType: "activity",
   agentFormOpen: false,
   siteFormOpen: false,
   expandedAgentIds: new Set(),
@@ -49,7 +55,34 @@ const bannerTimers = new Map();
 managerView.addEventListener("submit", handleSubmit);
 managerView.addEventListener("click", handleClick);
 managerView.addEventListener("change", handleChange);
+window.addEventListener("hashchange", () => {
+  if (state.session) {
+    applyCategory();
+    window.scrollTo({ top: 0, behavior: "instant" });
+  }
+});
 initialize();
+
+function applyCategory() {
+  const key = location.hash.slice(1);
+  const category = Object.hasOwn(categories, key) ? key : "overview";
+  document.querySelector(".manager-navigation").hidden = !state.session;
+  document.querySelector(".sidebar-account").hidden = !state.session;
+  managerView.dataset.category = category;
+  const title = document.getElementById("managerPageTitle");
+  if (title) title.textContent = categories[category];
+  for (const link of document.querySelectorAll(".manager-navigation a")) {
+    const active = link.hash === `#${category}`;
+    link.classList.toggle("active", active);
+    if (active) link.setAttribute("aria-current", "page");
+    else link.removeAttribute("aria-current");
+  }
+  for (const panel of managerView.querySelectorAll("[data-category-panel]")) {
+    panel.hidden = category !== "overview" && panel.dataset.categoryPanel !== category;
+  }
+  const metrics = managerView.querySelector(".manager-metrics");
+  if (metrics) metrics.hidden = category !== "overview";
+}
 
 function handleChange(event) {
   if (event.target.id === "reportPeriod") {
@@ -118,6 +151,13 @@ async function handleSubmit(event) {
 async function handleClick(event) {
   const action = event.target.closest("[data-action]")?.dataset.action;
   if (!action) {
+    return;
+  }
+
+  if (action === "select-report-type") {
+    for (const form of managerView.querySelectorAll("[data-client-report-form]")) captureClientReport(form);
+    state.reportType = event.target.closest("[data-report-type]").dataset.reportType === "incidents" ? "incidents" : "activity";
+    renderDashboard();
     return;
   }
 
@@ -444,6 +484,8 @@ function schedulePeriodRollover() {
 }
 
 function renderLogin() {
+  document.querySelector(".manager-navigation").hidden = true;
+  document.querySelector(".sidebar-account").hidden = true;
   scheduleBannerDismissal();
   managerView.innerHTML = `
     <section class="login-panel manager-login">
@@ -494,7 +536,8 @@ function renderDashboard(capturePanels = true) {
   managerView.innerHTML = `
     <section class="manager-toolbar" aria-label="Session responsable">
       <div>
-        <p class="eyebrow">Vue d'ensemble</p>
+        <p class="eyebrow">Centre de contrôle</p>
+        <h1 id="managerPageTitle">Vue d'ensemble</h1>
         <div class="manager-status-row">
           <span class="connection-state"><span></span> En ligne</span>
           <p class="manager-sync">${state.lastUpdated ? `Actualisé à ${formatClock(state.lastUpdated)}` : "Connexion sécurisée"}</p>
@@ -509,12 +552,11 @@ function renderDashboard(capturePanels = true) {
     ${state.error ? `<p class="form-message error">${escapeHtml(state.error)}</p>` : ""}
     ${renderManagerMetrics()}
     ${renderSitesPanel()}
-    ${renderCategoryReportsPanel()}
-    <section class="manager-admin-panel">
+    <section class="manager-admin-panel" data-category-panel="agents">
       <div class="section-heading">
         <div>
           <p class="eyebrow">Équipe</p>
-          <h2>Agents autorisés</h2>
+          <h2>Agents autorisés <span class="manager-count">${state.agents.length}</span></h2>
         </div>
         <button class="primary-button manager-add-button" type="button" data-action="toggle-agent-form">${state.agentFormOpen ? "Fermer" : "Ajouter un agent"}</button>
       </div>
@@ -537,7 +579,8 @@ function renderDashboard(capturePanels = true) {
         ${state.agents.length ? state.agents.map(renderAgentRow).join("") : renderNoAgents()}
       </div>
     </section>
-    <section class="manager-tours-panel">
+    ${renderCategoryReportsPanel()}
+    <section class="manager-tours-panel" data-category-panel="journal">
       <div class="section-heading manager-tours-heading">
         <div>
           <p class="eyebrow">Journal d'activité</p>
@@ -553,6 +596,7 @@ function renderDashboard(capturePanels = true) {
     ${renderClearHistoryConfirmation()}
     <p class="manager-session-note">Connecté en tant que ${escapeHtml(state.session?.user?.email || "Responsable")}</p>
   `;
+  applyCategory();
 }
 
 function renderClearHistoryConfirmation() {
@@ -612,7 +656,7 @@ function renderAgentRow(agent) {
 
 function renderSitesPanel() {
   return `
-    <section class="manager-admin-panel sites-panel">
+    <section class="manager-admin-panel sites-panel" data-category-panel="sites">
       <div class="section-heading">
         <div>
           <p class="eyebrow">Configuration</p>
@@ -634,18 +678,19 @@ function renderSitesPanel() {
 
 function renderCategoryReportsPanel() {
   return `
-    <section class="manager-admin-panel category-reports-panel">
+    <section class="manager-admin-panel category-reports-panel" data-category-panel="reports">
       <div class="section-heading">
         <div>
-          <p class="eyebrow">Rapports clients</p>
-          <h2>Documents à transmettre</h2>
+          <h2>Rapports clients</h2>
         </div>
       </div>
-      <p class="section-copy">Sélectionnez un site et une période pour créer le document adapté.</p>
+      <div class="manager-report-tabs" role="group" aria-label="Type de rapport">
+        <button type="button" data-action="select-report-type" data-report-type="activity" aria-pressed="${state.reportType === "activity"}">Rapport d'activité</button>
+        <button type="button" data-action="select-report-type" data-report-type="incidents" aria-pressed="${state.reportType === "incidents"}">Signalements</button>
+      </div>
       ${state.sites.length ? `
         <div class="client-report-list">
-          ${renderClientReportRow("activity", "Rapport d'activité", "Tournées, horaires, points scannés, commentaires et positions GPS.")}
-          ${renderClientReportRow("incidents", "Rapport de signalements", "Uniquement les événements signalés, avec notes et positions GPS.")}
+          ${renderClientReportRow(state.reportType, state.reportType === "activity" ? "Rapport d'activité" : "Rapport de signalements", "")}
         </div>
       ` : `<div class="empty-inline">Ajoutez d'abord un site pour créer un rapport.</div>`}
     </section>
@@ -668,7 +713,7 @@ function renderClientReportRow(type, title, description) {
         </label>
         <label>Du<input type="date" name="from" value="${range.from}" required></label>
         <label>Au<input type="date" name="to" value="${range.to}" required></label>
-        <button class="secondary-button client-report-button" type="button" data-action="export-client-report" data-report-type="${escapeHtml(type)}">Rapport PDF</button>
+        <button class="secondary-button client-report-button" type="button" data-action="export-client-report" data-report-type="${escapeHtml(type)}">Télécharger le rapport PDF</button>
       </div>
     </div>
   `;
@@ -680,7 +725,7 @@ function renderSiteRow(site) {
     <details class="site-row" data-site-panel-id="${escapeHtml(site.id)}"${state.expandedSiteIds.has(site.id) ? " open" : ""}>
       <summary>
         <div><strong>${escapeHtml(site.name)}</strong><span>${escapeHtml(site.address || "Adresse non renseignée")}</span></div>
-        <span>${points.filter((point) => point.active).length} QR actifs</span>
+        <span class="site-qr-count">${points.filter((point) => point.active).length} QR actifs</span>
         <span class="tour-chevron" aria-hidden="true"></span>
       </summary>
       <div class="site-details">
