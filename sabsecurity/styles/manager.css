@@ -101,4 +101,30 @@
   .client-report-controls, .manager-view[data-category="overview"] .client-report-controls { grid-template-columns: minmax(0, 1fr); }
   .client-report-controls > * { grid-column: 1; }
   .manager-body .client-report-button { white-space: normal; height: auto; min-height: 44px; }
+  .manager-sidebar { padding-top: calc(16px + env(safe-area-inset-top)); }
+  .manager-navigation { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; overflow: visible; }
+  .manager-navigation a { display: flex; align-items: center; min-height: 44px; padding: 10px 12px; white-space: normal; }
+  .manager-navigation a:first-child { grid-column: 1 / -1; }
+  .manager-view { padding: 20px 16px calc(28px + env(safe-area-inset-bottom)); }
+  .manager-toolbar { margin-bottom: 20px; }
+  .manager-toolbar-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .manager-body :is(.primary-button, .secondary-button, .icon-text-button, .agent-manage-toggle) { min-height: 44px; }
+  .manager-body .section-heading { align-items: center; gap: 12px; }
+  .manager-admin-panel, .manager-tours-panel { padding: 20px 0; }
+  .manager-body :is(input, select, textarea) { width: 100%; min-width: 0; box-sizing: border-box; font-size: 16px; }
+  .client-report-controls :is(input, select) { height: 48px; }
+  .client-report-controls input[type="date"] { display: block; appearance: none; -webkit-appearance: none; }
+  .client-report-controls input::-webkit-date-and-time-value { text-align: left; min-width: 0; }
+  .manager-report-tabs { gap: 0; }
+  .manager-report-tabs button { flex: 1; min-height: 44px; text-align: center; }
+  .agent-admin-row { grid-template-columns: 38px minmax(0, 1fr) auto; gap: 8px 10px; }
+  .agent-admin-row > .agent-state { grid-column: 2; grid-row: 2; }
+  .agent-admin-row > .agent-manage-toggle { grid-column: 3; grid-row: 1 / 3; }
+  .agent-pin-form { grid-template-columns: minmax(0, 1fr); }
+  .site-row summary { gap: 8px; }
+  .site-row .site-qr-count { padding: 3px 6px; }
+  .tour-filters { margin-right: 0; max-width: 100%; overflow-x: auto; }
+  .tour-filters button { min-height: 44px; flex-shrink: 0; }
+  .period-filter { width: 100%; }
+  .manager-session-note { overflow-wrap: anywhere; }
 }
