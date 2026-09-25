@@ -113,8 +113,8 @@
   .manager-admin-panel, .manager-tours-panel { padding: 20px 0; }
   .manager-body :is(input, select, textarea) { width: 100%; min-width: 0; box-sizing: border-box; font-size: 16px; }
   .client-report-controls :is(input, select) { height: 48px; }
-  .client-report-controls input[type="date"] { display: block; appearance: none; -webkit-appearance: none; text-align: center; }
-  .client-report-controls input[type="date"]::-webkit-date-and-time-value { min-width: 0; width: 100%; text-align: center; }
+  .client-report-controls input[type="date"] { display: flex; align-items: center; justify-content: center; appearance: none; -webkit-appearance: none; text-align: center; }
+  .client-report-controls input[type="date"]::-webkit-date-and-time-value { min-width: 0; width: 100%; height: 1.5em; margin: auto; text-align: center; }
   .client-report-controls input[type="date"]::-webkit-datetime-edit { text-align: center; }
   .manager-report-tabs { gap: 0; }
   .manager-report-tabs button { flex: 1; min-height: 44px; text-align: center; }
