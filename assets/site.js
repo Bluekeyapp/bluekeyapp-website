@@ -24,20 +24,20 @@ labels.forEach((element) => {
 
 const metadata = {
   fr: {
-    title: "BlueKey — Développement d’applications et de logiciels",
+    title: "Blue Key Apps — Applications sur mesure pour les entreprises",
     description:
-      "BlueKey, entreprise de développement d’applications et de logiciels. Applications web, solutions mobiles et logiciels sur mesure pour les entreprises.",
-    socialTitle: "BlueKey — Vos idées. Notre code.",
+      "Blue Key Apps développe des applications sur mesure pour les petites et grandes entreprises, avec une attention particulière à Saint-Barthélemy et Saint-Martin.",
+    socialTitle: "Blue Key Apps — Des applications pensées pour votre entreprise",
     socialDescription:
-      "Des applications web, mobiles et des logiciels sur mesure, pensés pour votre entreprise.",
+      "Applications web, mobiles et logiciels métier sur mesure pour les entreprises de Saint-Barthélemy, de Saint-Martin et d’ailleurs.",
   },
   en: {
-    title: "BlueKey — App & software development",
+    title: "Blue Key Apps — Custom applications for businesses",
     description:
-      "BlueKey is an app and software development company building web applications, mobile solutions and custom business software.",
-    socialTitle: "BlueKey — Your ideas. Our code.",
+      "Blue Key Apps builds custom web, mobile and business applications for companies of every size, with a focus on Saint Barthélemy and Saint Martin.",
+    socialTitle: "Blue Key Apps — Applications built around your business",
     socialDescription:
-      "Web apps, mobile experiences and custom software, built around your business.",
+      "Custom web, mobile and business applications for companies in Saint Barthélemy, Saint Martin and beyond.",
   },
 };
 
@@ -84,13 +84,11 @@ function updateMenu() {
   if (!menuToggle) return;
   const isOpen = menuToggle.getAttribute("aria-expanded") === "true";
   const menuText = menuToggle.querySelector("[data-menu-text], [data-en]");
-  const menuIcon = menuToggle.querySelector(".menu-icon");
   if (menuText) {
     menuText.textContent = isOpen
       ? currentLanguage() === "en" ? "Close" : "Fermer"
       : "Menu";
   }
-  if (menuIcon) menuIcon.textContent = isOpen ? "×" : "☰";
 }
 
 function closeMenu() {
@@ -246,7 +244,7 @@ document.addEventListener("click", (event) => {
   const scrollTarget = showProject ? projectComposer : target;
   scrollTarget.scrollIntoView({ behavior: reducedMotion.matches ? "instant" : "smooth", block: "start" });
 });
-window.matchMedia("(min-width: 901px)").addEventListener("change", closeMenu);
+window.matchMedia("(min-width: 961px)").addEventListener("change", closeMenu);
 
 if (projectComposer && projectType && projectMessage && draftEmail) {
   projectComposer.hidden = false;
