@@ -119,8 +119,8 @@ button, select, textarea { font: inherit; }
 .faq-list details { border-bottom: 1px solid var(--line); }
 .faq-list summary { position: relative; list-style: none; padding: 25px 50px 25px 0px; font-size: 17px; font-weight: 750; line-height: 1.45; cursor: pointer; }
 .faq-list summary::-webkit-details-marker { display: none; }
-.faq-list summary::after { content: "+"; position: absolute; right: 4px; top: 19px; display: grid; place-items: center; width: 32px; height: 32px; border: 1px solid rgb(207, 218, 234); border-radius: 50%; color: var(--blue); font-size: 20px; font-weight: 400; transition: transform 0.2s, background 0.2s; }
-.faq-list details[open] summary::after { transform: rotate(45deg); background: rgb(232, 240, 255); }
+.faq-list summary::after { content: ""; position: absolute; right: 4px; top: 50%; transform: translateY(-50%); box-sizing: border-box; width: 34px; height: 34px; border: 1px solid rgb(207, 218, 234); border-radius: 50%; background: linear-gradient(var(--blue), var(--blue)) center / 12px 2px no-repeat, linear-gradient(var(--blue), var(--blue)) center / 2px 12px no-repeat; }
+.faq-list details[open] summary::after { background: linear-gradient(var(--blue), var(--blue)) center / 12px 2px no-repeat, rgb(232, 240, 255); }
 .faq-list details p { max-width: 650px; margin: -5px 52px 25px 0px; color: var(--muted); font-size: 14px; line-height: 1.75; }
 .contact-section { padding: var(--section-space) 0; }
 .contact-panel { display: grid; grid-template-columns: 0.92fr 1.08fr; align-items: center; gap: 56px; padding: 56px; border: 1px solid rgb(218, 229, 244); border-radius: 30px; background: linear-gradient(135deg, rgb(233, 241, 255), rgb(246, 248, 255)); }
@@ -235,7 +235,7 @@ button, select, textarea { font: inherit; }
   .faq-section { padding-bottom: 6px; }
   .faq-heading > p:last-child { margin-top: 18px; line-height: 1.65; }
   .faq-list summary { padding: 20px 42px 20px 0px; font-size: 16px; }
-  .faq-list summary::after { right: 0px; top: 15px; }
+  .faq-list summary::after { right: 0px; }
   .faq-list details p { margin-right: 24px; line-height: 1.65; }
   .contact-section { padding-top: 56px; padding-bottom: 56px; }
   .contact-panel { gap: 28px; margin-inline: 0px; padding: 23px 18px; border-radius: 20px; }
