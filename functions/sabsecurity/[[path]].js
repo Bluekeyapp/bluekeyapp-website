@@ -18,7 +18,7 @@ export async function onRequest({ request }) {
   }
 
   const upstream = new URL(APPS[app]);
-  upstream.pathname = app === "manager" && path === "" ? "/manager.html" : `/${path}`;
+  upstream.pathname = app === "manager" && path === "" ? "/manager" : `/${path}`;
   upstream.search = url.search;
 
   const response = await fetch(new Request(upstream, request), { redirect: "manual" });
